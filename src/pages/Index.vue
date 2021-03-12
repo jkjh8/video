@@ -40,8 +40,8 @@ export default {
     this.status = await ipcRenderer.sendSync('getStatus')
     this.playlist = await ipcRenderer.sendSync('getPlaylist')
   },
-  mounted () {
-    this.player.setFullscreen()
+  async mounted () {
+    await this.player.setFullscreen()
     this.loadFileCallback()
     this.controlCallback()
     this.updateStatus()
