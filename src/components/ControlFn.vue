@@ -8,7 +8,7 @@
       :class="$q.platform.is.mobile ? 'justify-start' : 'justify-center'"
     >
       <NameTag
-        class="col-md-grow col-sm-12"
+        class="col-sm-grow col-xs-12"
         :status="status"
       />
       <Buttons

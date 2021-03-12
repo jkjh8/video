@@ -32,6 +32,9 @@ import { enterFullscreen, sendToWindow } from './apis/function'
 import controls from './apis/controls'
 import fs from 'fs'
 import path from 'path'
+import moment from 'moment'
+
+const tempFolder = path.join(__dirname, 'public')
 
 //ffmpeg
 const ffmpegPath = require('@ffmpeg-installer/ffmpeg').path
@@ -42,19 +45,40 @@ ffmpeg.setFfprobePath(ffprobePath)
 
 //gen thumbnail
 async function genThumb (file) {
-  const filename = `${path.basename(file).split('.')[0]}.png`
-  ffmpeg(file)
-    .on('end', () => {
-      status.thumbnail = `http://localhost:8089/static/${encodeURIComponent(filename)}`
-      sendToWindow('status', status)
-    })
-    .screenshot({
-      timestamps: ['00:00:02'],
-      filename: filename,
-      folder: path.join(__dirname, 'public'),
-      size: '640x360'
-    })
+  const filename = `${path.basename(file).split('.')[0]}.png`.replaceAll('%', '')
+  const result = fs.existsSync(path.join(tempFolder, filename))
+  if (result) {
+    status.thumbnail = `http://localhost:8089/static/${encodeURIComponent(filename)}`
+    sendToWindow('status', status)
+  } else {
+    ffmpeg(file)
+      .on('end', () => {
+        status.thumbnail = `http://localhost:8089/static/${encodeURIComponent(filename)}`
+        sendToWindow('status', status)
+      })
+      .screenshot({
+        timestamps: ['00:00:02'],
+        filename: filename,
+        folder: path.join(__dirname, 'public'),
+        size: '640x360'
+      })
+  }
 }
+
+// ond file delete
+function oldFileDelete () {
+  const files = fs.readdirSync(tempFolder)
+  files.forEach(file => {
+    const fileState = fs.statSync(path.join(tempFolder, file))
+    const relative = moment(fileState.ctime)
+    const now = moment().subtract(1, 'weeks')
+    if (relative < now) {
+      fs.unlinkSync(file)
+    }
+  })
+}
+
+oldFileDelete()
 
 try {
   if (process.platform === 'win32' && nativeTheme.shouldUseDarkColors === true) {
@@ -144,7 +168,10 @@ Menu.setApplicationMenu(
         {
           label: 'Open',
           accelerator: 'CommandOrControl+O',
-          async click () { status.file = await open(mainWindow) }
+          async click () {
+            status.file = await open(mainWindow)
+            genThumb(status.file.file)
+          }
         },
         {
           label: 'OpenControlWindow',
@@ -208,6 +235,7 @@ ipcMain.on('playlist', async (event, control) => {
       }
       status.file = getFileObj(playlist.items[playlist.itemIdx].file)
       mainWindow.webContents.send('file', status.file)
+      genThumb(status.file.file)
       break
     case 'previous':
       playlist.itemIdx = playlist.itemIdx - 1
@@ -216,13 +244,14 @@ ipcMain.on('playlist', async (event, control) => {
       }
       status.file = getFileObj(playlist.items[playlist.itemIdx].file)
       mainWindow.webContents.send('file', status.file)
+      genThumb(status.file.file)
       break
     case 'itemIdx':
       playlist.itemIdx = control.value
       status.file = getFileObj(playlist.items[control.value].file)
-      genThumb(status.file.file)
       mainWindow.webContents.send('file', status.file)
       status.isPlaying = false
+      genThumb(status.file.file)
       break
     case 'listIdx':
       playlist.listIdx = control.value
