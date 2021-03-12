@@ -3,10 +3,17 @@
     <q-card-section class="q-pa-none">
       <TimeSlider class="q-mx-md" :status="status" />
     </q-card-section>
-    <q-card-section class="row no-warp items-center q-mx-lg q-pt-sm">
-      <NameTag :status="status" />
-      <q-space />
-      <Buttons :status="status" />
+    <q-card-section
+      class="row fit no-warp items-center"
+      :class="$q.platform.is.mobile ? 'justify-start' : 'justify-center'"
+    >
+      <NameTag
+        class="col-md-grow col-sm-12"
+        :status="status"
+      />
+      <Buttons
+        class="col-md-shrink"
+        :status="status" />
     </q-card-section>
   </q-card>
 </template>

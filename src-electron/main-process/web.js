@@ -3,26 +3,6 @@ const path = require('path')
 const fs = require('fs')
 const server = express()
 
-//ffmpeg
-const ffmpegPath = require('@ffmpeg-installer/ffmpeg').path
-const ffmpeg = require('fluent-ffmpeg')
-ffmpeg.setFfmpegPath(ffmpegPath)
-
-function gh(file) {
-  ffmpeg(file).on('filenames', (filenames) => {
-    console.log('ffmpeg load file' + filenames[0])
-  }).on('end', () => {
-    console.log('end')
-  }).on('error', (err) => {
-    console.log(err)
-  }).screenshot({
-    count: 1,
-    folder: path.join(__dirname, 'public'),
-    size: "320x320",
-    filename: 'thumbnail.png'
-  })
-}
-
 server.use('/static', express.static(path.join(__dirname, 'public')))
 
 server.get('/', (req, res) => {
@@ -30,9 +10,8 @@ server.get('/', (req, res) => {
 })
 
 server.get('/stream', (req, res) => {
-  let type = req.query.type
+  const type = req.query.type
   const file = req.query.file
-  gh(file)
   const filePath = fs.statSync(file)
   const fileSize = filePath.size
   const range = req.headers.range

@@ -14,7 +14,8 @@ let status = {
   fullscreen: false,
   mute: false,
   volume: 100,
-  playBtn: false
+  playBtn: false,
+  thumbnail: ''
 }
 
 let playlist = {
@@ -29,6 +30,31 @@ import server from './web'
 import { open, openFiles, getFileObj } from './apis/files'
 import { enterFullscreen, sendToWindow } from './apis/function'
 import controls from './apis/controls'
+import fs from 'fs'
+import path from 'path'
+
+//ffmpeg
+const ffmpegPath = require('@ffmpeg-installer/ffmpeg').path
+const ffprobePath = require('@ffprobe-installer/ffprobe').path
+const ffmpeg = require('fluent-ffmpeg')
+ffmpeg.setFfmpegPath(ffmpegPath)
+ffmpeg.setFfprobePath(ffprobePath)
+
+//gen thumbnail
+async function genThumb (file) {
+  const filename = `${path.basename(file).split('.')[0]}.png`
+  ffmpeg(file)
+    .on('end', () => {
+      status.thumbnail = `http://localhost:8089/static/${encodeURIComponent(filename)}`
+      sendToWindow('status', status)
+    })
+    .screenshot({
+      timestamps: ['00:00:02'],
+      filename: filename,
+      folder: path.join(__dirname, 'public'),
+      size: '640x360'
+    })
+}
 
 try {
   if (process.platform === 'win32' && nativeTheme.shouldUseDarkColors === true) {
@@ -139,7 +165,8 @@ Menu.setApplicationMenu(
           label: 'Toggle Fullscreen',
           accelerator: 'F11',
           click () { enterFullscreen(mainWindow) }
-        }
+        },
+        { role: 'toggleDevTools' }
       ]
     }
   ])
@@ -193,6 +220,7 @@ ipcMain.on('playlist', async (event, control) => {
     case 'itemIdx':
       playlist.itemIdx = control.value
       status.file = getFileObj(playlist.items[control.value].file)
+      genThumb(status.file.file)
       mainWindow.webContents.send('file', status.file)
       status.isPlaying = false
       break
