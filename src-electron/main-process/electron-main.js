@@ -173,6 +173,10 @@ ipcMain.on('playlist', async (event, control) => {
     case 'next':
       playlist.itemIdx = playlist.itemIdx + 1
       if (playlist.items.length <= playlist.itemIdx) {
+        if (!status.loopAll) {
+          status.playBtn = false
+          sendToWindow('status', status)
+        }
         playlist.itemIdx = 0
       }
       status.file = getFileObj(playlist.items[playlist.itemIdx].file)
