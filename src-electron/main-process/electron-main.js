@@ -1,5 +1,6 @@
 import { app, BrowserWindow, nativeTheme, Menu, ipcMain } from 'electron'
 import db from './apis/db'
+import os from 'os'
 
 let status = {
   isPlaying: false,
@@ -30,40 +31,42 @@ import server from './web'
 import { open, openFiles, getFileObj } from './apis/files'
 import { enterFullscreen, sendToWindow } from './apis/function'
 import controls from './apis/controls'
+import genThumb from './apis/thunbnail'
 import fs from 'fs'
 import path from 'path'
 import moment from 'moment'
 
+const architect = os.arch()
 const tempFolder = path.join(__dirname, 'public')
 
 //ffmpeg
-const ffmpegPath = require('@ffmpeg-installer/ffmpeg').path
-const ffprobePath = require('@ffprobe-installer/ffprobe').path
-const ffmpeg = require('fluent-ffmpeg')
-ffmpeg.setFfmpegPath(ffmpegPath)
-ffmpeg.setFfprobePath(ffprobePath)
+// const ffmpegPath = require('@ffmpeg-installer/ffmpeg').path
+// const ffprobePath = require('@ffprobe-installer/ffprobe').path
+// const ffmpeg = require('fluent-ffmpeg')
+// ffmpeg.setFfmpegPath(ffmpegPath)
+// ffmpeg.setFfprobePath(ffprobePath)
 
 //gen thumbnail
-async function genThumb (file) {
-  const filename = `${path.basename(file).split('.')[0]}.png`.replaceAll('%', '')
-  const result = fs.existsSync(path.join(tempFolder, filename))
-  if (result) {
-    status.thumbnail = `http://localhost:8089/static/${encodeURIComponent(filename)}`
-    sendToWindow('status', status)
-  } else {
-    ffmpeg(file)
-      .on('end', () => {
-        status.thumbnail = `http://localhost:8089/static/${encodeURIComponent(filename)}`
-        sendToWindow('status', status)
-      })
-      .screenshot({
-        timestamps: ['00:00:02'],
-        filename: filename,
-        folder: path.join(__dirname, 'public'),
-        size: '640x360'
-      })
-  }
-}
+// async function genThumb (file) {
+//   const filename = `${path.basename(file).split('.')[0]}.png`.replaceAll('%', '')
+//   const result = fs.existsSync(path.join(tempFolder, filename))
+//   if (result) {
+//     status.thumbnail = `http://localhost:8089/static/${encodeURIComponent(filename)}`
+//     sendToWindow('status', status)
+//   } else {
+//     ffmpeg(file)
+//       .on('end', () => {
+//         status.thumbnail = `http://localhost:8089/static/${encodeURIComponent(filename)}`
+//         sendToWindow('status', status)
+//       })
+//       .screenshot({
+//         timestamps: ['00:00:02'],
+//         filename: filename,
+//         folder: path.join(__dirname, 'public'),
+//         size: '640x360'
+//       })
+//   }
+// }
 
 // ond file delete
 function oldFileDelete () {
