@@ -17,8 +17,22 @@
         <div class="text-overline text-uppercase">{{ status.mode }}</div>
       </span>
     </div>
-    <div v-else>
-      None
+    <div
+      v-else
+      class="row"
+    >
+      <span class="q-px-md">
+        <q-img
+          style="height: 70px; width: 122px"
+          :ratio="16/9"
+          src="~assets/logo.png"
+        />
+      </span>
+      <span>
+        <div class="text-body1 text-bold">None</div>
+        <div class="text-caption">Please load video file</div>
+        <div class="text-overline text-uppercase">{{ status.mode }}</div>
+      </span>
     </div>
   </div>
 </template>

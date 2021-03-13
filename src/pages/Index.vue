@@ -63,7 +63,6 @@ export default {
   methods: {
     loadFileCallback () {
       ipcRenderer.on('file', (event, file) => {
-        console.log(file)
         this.openFile(file)
         this.status.isPlaying = false
       })
@@ -90,11 +89,16 @@ export default {
       })
     },
     openFile (file) {
-      const fileObj = {
-        src: `http://localhost:8089/stream?file=${encodeURIComponent(file.file)}&type=${file.type}`,
-        type: file.type
+      let fileObj
+      if (!file) {
+        this.videoOptions.sources = [{}]
+      } else {
+        fileObj = {
+          src: `http://localhost:8089/stream?file=${encodeURIComponent(file.file)}&type=${file.type}`,
+          type: file.type
+        }
+        this.videoOptions.sources = [fileObj]
       }
-      this.videoOptions.sources = [fileObj]
     },
     updateDuraton (time) {
       ipcRenderer.send('control', { control: 'duration', value: time })

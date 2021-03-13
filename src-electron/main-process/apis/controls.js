@@ -1,5 +1,5 @@
 import { enterFullscreen } from './function'
-import { open, getFileObj } from './files'
+import { open, clear, getFileObj } from './files'
 
 async function controls (contr, status, win) {
   const control = contr.control
@@ -7,6 +7,9 @@ async function controls (contr, status, win) {
   switch (control) {
     case 'open':
       status.file = await open(win)
+      break
+    case 'clear':
+      status.file = await clear()
       break
     case 'mode':
       if (status.mode === 'playlist') {

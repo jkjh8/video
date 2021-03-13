@@ -77,13 +77,23 @@
     <q-btn
       flat
       round
+      icon="cancel_presentation"
+      @click="clearSource"
+    >
+      <q-tooltip>Clear Source</q-tooltip>
+    </q-btn>
+    <q-btn
+      flat
+      round
       :icon="status.mute ? 'volume_off' : 'volume_up'"
     >
       <q-menu
         content-style="background: rgba( 255, 255, 255, 0.1); border-radius: 30px;"
+        transition-show="scale"
+        transition-hide="scale"
       >
         <div
-          class="row no-wrap items-center q-px-md"
+          class="row no-wrap items-center q-px-md q-py-sm"
           style="border-radius: 30px; min-width: 250px; min-height: 20px"
         >
           <q-btn
@@ -91,6 +101,7 @@
             flat
             round
             :icon="status.mute ? 'volume_off' : 'volume_up'"
+            :color="status.mute ? 'red' : ''"
             @click="mute"
           />
           <q-slider
@@ -152,6 +163,7 @@ export default {
     previous () { ipcRenderer.send('playlist', { control: 'previous' }) },
     next () { ipcRenderer.send('playlist', { control: 'next' }) },
     mute () { ipcRenderer.send('control', { control: 'mute' }) },
+    clearSource () { ipcRenderer.send('control', { control: 'clear' }) },
     changeVolume (vol) { ipcRenderer.send('control', { control: 'volume', value: vol }) }
   }
 }

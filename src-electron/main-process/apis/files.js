@@ -35,6 +35,14 @@ export const open = async function (win) {
   }
 }
 
+export const clear = async function () {
+  const windows = BrowserWindow.getAllWindows()
+  windows.forEach(window => {
+    window.webContents.send('file', null)
+  })
+  return null
+}
+
 export const openFiles = async function (win) {
   return await dialog.showOpenDialogSync({
     filters: [

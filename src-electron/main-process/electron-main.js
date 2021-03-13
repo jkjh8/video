@@ -229,6 +229,7 @@ ipcMain.on('playlist', async (event, control) => {
       if (playlist.items.length <= playlist.itemIdx) {
         if (!status.loopAll) {
           status.playBtn = false
+          status.isPlaying = false
           sendToWindow('status', status)
         }
         playlist.itemIdx = 0
