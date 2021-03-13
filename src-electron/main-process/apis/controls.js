@@ -10,6 +10,8 @@ async function controls (contr, status, win) {
       break
     case 'clear':
       status.file = await clear()
+      status.isPlaying = false
+      status.playBtn = false
       break
     case 'mode':
       if (status.mode === 'playlist') {

@@ -21,7 +21,14 @@
         @paused ="paused"
         @ended="ended"
         @ready="ready"
-      ></q-media-player>
+      >
+        <template v-slot:overlay>
+          <q-img
+            :ratio="16/9"
+            src="~assets/logo_1.png"
+          />
+        </template>
+      </q-media-player>
     </div>
   </q-page>
 </template>
