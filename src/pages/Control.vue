@@ -38,6 +38,11 @@ import Playlist from '../components/Playlist'
 export default {
   name: 'PageControl',
   components: { PlaylistItems, Playlist },
-  props: ['status', 'playlist']
+  props: ['status', 'playlist'],
+  data () {
+    return {
+      alert: true
+    }
+  }
 }
 </script>

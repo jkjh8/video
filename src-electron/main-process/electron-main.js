@@ -1,6 +1,5 @@
 import { app, BrowserWindow, nativeTheme, Menu, ipcMain } from 'electron'
 import db from './apis/db'
-import os from 'os'
 
 let status = {
   isPlaying: false,
@@ -28,58 +27,20 @@ let playlist = {
 }
 
 import server from './web'
-import { open, openFiles, getFileObj } from './apis/files'
+import { open, oldFileDelete } from './apis/files'
 import { enterFullscreen, sendToWindow } from './apis/function'
 import controls from './apis/controls'
+import playlistPrc from './apis/playlist'
 import genThumb from './apis/thunbnail'
-import fs from 'fs'
-import path from 'path'
-import moment from 'moment'
+import tcp from './apis/socket'
 
-const architect = os.arch()
-const tempFolder = path.join(__dirname, 'public')
+tcp.read(12303, (res) => {
+  tcp.write(res)
+})
 
-//ffmpeg
-// const ffmpegPath = require('@ffmpeg-installer/ffmpeg').path
-// const ffprobePath = require('@ffprobe-installer/ffprobe').path
-// const ffmpeg = require('fluent-ffmpeg')
-// ffmpeg.setFfmpegPath(ffmpegPath)
-// ffmpeg.setFfprobePath(ffprobePath)
-
-//gen thumbnail
-// async function genThumb (file) {
-//   const filename = `${path.basename(file).split('.')[0]}.png`.replaceAll('%', '')
-//   const result = fs.existsSync(path.join(tempFolder, filename))
-//   if (result) {
-//     status.thumbnail = `http://localhost:8089/static/${encodeURIComponent(filename)}`
-//     sendToWindow('status', status)
-//   } else {
-//     ffmpeg(file)
-//       .on('end', () => {
-//         status.thumbnail = `http://localhost:8089/static/${encodeURIComponent(filename)}`
-//         sendToWindow('status', status)
-//       })
-//       .screenshot({
-//         timestamps: ['00:00:02'],
-//         filename: filename,
-//         folder: path.join(__dirname, 'public'),
-//         size: '640x360'
-//       })
-//   }
-// }
-
-// ond file delete
-function oldFileDelete () {
-  const files = fs.readdirSync(tempFolder)
-  files.forEach(file => {
-    const fileState = fs.statSync(path.join(tempFolder, file))
-    const relative = moment(fileState.ctime)
-    const now = moment().subtract(1, 'weeks')
-    if (relative < now) {
-      fs.unlinkSync(file)
-    }
-  })
-}
+tcp.read(9988, (res) => {
+  tcp.write(res)
+})
 
 oldFileDelete()
 
@@ -133,6 +94,7 @@ function createWindow () {
     status.fullscreen = false
     sendToWindow(controlWindow, status)
   })
+  console.log(mainWindow.id)
 }
 
 function createControlWindow () {
@@ -161,6 +123,7 @@ function createControlWindow () {
   controlWindow.on('closed', () => {
     controlWindow = null
   })
+  console.log(controlWindow.id)
 }
 
 Menu.setApplicationMenu(
@@ -173,7 +136,7 @@ Menu.setApplicationMenu(
           accelerator: 'CommandOrControl+O',
           async click () {
             status.file = await open(mainWindow)
-            genThumb(status.file.file)
+            status = await genThumb(status)
           }
         },
         {
@@ -194,7 +157,7 @@ Menu.setApplicationMenu(
         {
           label: 'Toggle Fullscreen',
           accelerator: 'F11',
-          click () { enterFullscreen(mainWindow) }
+          click () { status.fullscreen = enterFullscreen() }
         },
         { role: 'toggleDevTools' }
       ]
@@ -226,70 +189,12 @@ ipcMain.on('getPlaylist', (event) => { event.returnValue = playlist })
 
 ipcMain.on('playlist', async (event, control) => {
   console.log(control)
-  switch (control.control) {
-    case 'next':
-      playlist.itemIdx = playlist.itemIdx + 1
-      if (playlist.items.length <= playlist.itemIdx) {
-        if (!status.loopAll) {
-          status.playBtn = false
-          status.isPlaying = false
-          sendToWindow('status', status)
-        }
-        playlist.itemIdx = 0
-      }
-      status.file = getFileObj(playlist.items[playlist.itemIdx].file)
-      mainWindow.webContents.send('file', status.file)
-      genThumb(status.file.file)
-      break
-    case 'previous':
-      playlist.itemIdx = playlist.itemIdx - 1
-      if (playlist.itemIdx < 0) {
-        playlist.itemIdx = playlist.items.length - 1
-      }
-      status.file = getFileObj(playlist.items[playlist.itemIdx].file)
-      mainWindow.webContents.send('file', status.file)
-      genThumb(status.file.file)
-      break
-    case 'itemIdx':
-      playlist.itemIdx = control.value
-      status.file = getFileObj(playlist.items[control.value].file)
-      mainWindow.webContents.send('file', status.file)
-      status.isPlaying = false
-      genThumb(status.file.file)
-      break
-    case 'listIdx':
-      playlist.listIdx = control.value
-      playlist.currListName = playlist.list[control.value].name
-      playlist.itemIdx = null
-      break
-    case 'getItems': {
-      const files = await openFiles()
-      await db.addListItems(playlist.currListName, files)
-      break
-    }
-    case 'addList':
-      await db.addList(control.value)
-      break
-    case 'delItem':
-      await db.delListItem(control.value)
-      break
-    case 'delItems':
-      await db.delListItems(playlist.currListName)
-      break
-    case 'delList':
-      await db.delList(control.value)
-      break
-    case 'delAll':
-      await db.delAll()
-      break
-  }
-  playlist.list = await db.getList()
-  playlist.items = await db.getListItems(playlist.currListName)
+  playlist = await playlistPrc(control, status, playlist, mainWindow, controlWindow)
   sendToWindow('playlist', playlist)
 })
 
 ipcMain.on('control', async (event, control) => {
-  status = await controls(control, status, mainWindow)
+  status = await controls(control, status, playlist, mainWindow, controlWindow)
   // mainWindow.webContents.send('getControl', control)
   sendToWindow('status', status)
 })

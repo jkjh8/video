@@ -1,5 +1,9 @@
 import { BrowserWindow, dialog } from 'electron'
 import path from 'path'
+import fs from 'fs'
+import moment from 'moment'
+
+const tempFolder = path.join(__dirname, 'tmp')
 
 function filePath (file) {
   const filepath = path.parse(file)
@@ -56,5 +60,17 @@ export const openFiles = async function (win) {
       }
     ],
     properties: ['openFile', 'multiSelections']
+  })
+}
+
+export const oldFileDelete = function () {
+  const files = fs.readdirSync(tempFolder)
+  files.forEach(file => {
+    const fileState = fs.statSync(path.join(tempFolder, file))
+    const relative = moment(fileState.ctime)
+    const now = moment().subtract(1, 'weeks')
+    if (relative < now) {
+      fs.unlinkSync(file)
+    }
   })
 }

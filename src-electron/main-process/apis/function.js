@@ -1,6 +1,7 @@
 import { BrowserWindow } from 'electron'
 
-export const enterFullscreen = function (win) {
+export const enterFullscreen = function () {
+  const win = BrowserWindow.fromId(1)
   if (win && win.isFullScreen()) {
     win.setFullScreen(false)
     return false
@@ -13,6 +14,8 @@ export const enterFullscreen = function (win) {
 export const sendToWindow = function (addr, status) {
   const windows = BrowserWindow.getAllWindows()
   windows.forEach(window => {
-    window.webContents.send(addr, status)
+    if (window) {
+      window.webContents.send(addr, status)
+    }
   })
 }

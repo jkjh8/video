@@ -5,6 +5,7 @@
         type="video"
         ref="mediaplayer"
         :muted="status.mute"
+        :background-color="setup.bgColor"
         :loop="status.loop"
         :volume="status.volume"
         :autoplay="videoOptions.autoplay"
@@ -22,11 +23,13 @@
         @ended="ended"
         @ready="ready"
       >
-        <template v-slot:overlay>
-          <q-img
-            :ratio="16/9"
-            src="~assets/logo_1.png"
-          />
+        <template v-if="!status.file && setup.logo" v-slot:overlay>
+          <div class="full-width full-height row wrap justify-center content-center">
+            <q-img
+              style="width: 100px;"
+              src="http://localhost:8089/static/default/logo_2_320.png"
+            />
+          </div>
         </template>
       </q-media-player>
     </div>
@@ -34,7 +37,7 @@
 </template>
 
 <script>
-import { ipcRenderer } from 'electron'
+import { ipcRenderer, remote } from 'electron'
 
 export default {
   name: 'PageIndex',
@@ -49,12 +52,14 @@ export default {
   },
   async mounted () {
     await this.player.setFullscreen()
+    this.window = remote.getCurrentWindow()
     this.loadFileCallback()
     this.controlCallback()
     this.updateStatus()
   },
   data () {
     return {
+      window: null,
       volume: 100,
       status: '',
       playlist: null,
@@ -64,6 +69,10 @@ export default {
         controls: false,
         sources: [],
         preload: 'auto'
+      },
+      setup: {
+        bgColor: 'white',
+        logo: true
       }
     }
   },

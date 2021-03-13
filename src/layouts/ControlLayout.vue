@@ -7,6 +7,20 @@
       />
     </q-page-container>
 
+    <q-dialog v-model="alert">
+        <q-card style="min-width: 350px">
+          <q-card-section>
+            <div class="text-h6">Alert</div>
+          </q-card-section>
+          <q-card-section>
+            {{ alertMsg }}
+          </q-card-section>
+          <q-card-actions align="right">
+            <q-btn flat label="OK" color="teal" v-close-popup />
+          </q-card-actions>
+        </q-card>
+      </q-dialog>
+
     <q-footer bordered class="bg-white text-black">
       <Control
         class="q-mb-md"
@@ -27,7 +41,9 @@ export default {
   data () {
     return {
       status: {},
-      playlist: []
+      playlist: [],
+      alert: false,
+      alertMsg: ''
     }
   },
   async mounted () {
@@ -35,6 +51,7 @@ export default {
     this.playlist = await ipcRenderer.sendSync('getPlaylist')
     this.updateStatus()
     this.updatePlaylist()
+    this.reciveAlert()
   },
   methods: {
     updateStatus () {
@@ -45,6 +62,12 @@ export default {
     updatePlaylist () {
       ipcRenderer.on('playlist', (event, playlist) => {
         this.playlist = playlist
+      })
+    },
+    reciveAlert () {
+      ipcRenderer.on('alert', (event, msg) => {
+        this.alertMsg = msg
+        this.alert = true
       })
     }
   }

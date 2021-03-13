@@ -3,7 +3,7 @@ const path = require('path')
 const fs = require('fs')
 const server = express()
 
-server.use('/static', express.static(path.join(__dirname, 'public')))
+server.use('/static', express.static(path.join(__dirname, 'tmp')))
 
 server.get('/', (req, res) => {
   res.status(200).json(playerStatus)

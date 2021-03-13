@@ -1,7 +1,7 @@
-import { enterFullscreen } from './function'
+import { enterFullscreen, sendToWindow } from './function'
 import { open, clear, getFileObj } from './files'
 
-async function controls (contr, status, win) {
+async function controls (contr, status, win, win2) {
   const control = contr.control
   const value = contr.value
   switch (control) {
@@ -21,18 +21,19 @@ async function controls (contr, status, win) {
       }
       break
     case 'fullscreen':
-      status.fullscreen = enterFullscreen(win)
+      status.fullscreen = await enterFullscreen()
       break
     case 'play':
-      win.webContents.send('control', { control: 'play' })
+      sendToWindow('control', { control: 'play' })
       break
     case 'playBtn':
       if (status.file) {
         status.playBtn = !status.playBtn
-        win.webContents.send('control', { control: 'play' })
+        sendToWindow('control', { control: 'play' })
+        // win.webContents.send('control', { control: 'play' })
       } else {
         status.playBtn = false
-        status.file = await open(win)
+        win2.webContents.send('alert', 'Please check file or open file for play')
       }
       break
     case 'changeTime':
