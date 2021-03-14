@@ -2,7 +2,8 @@ import { enterFullscreen, sendToWindow } from './function'
 import { open, clear, getFileObj } from './files'
 import { BrowserWindow } from 'electron'
 
-async function controls (contr, status) {
+async function controls (contr, status, tcpServer) {
+  const win1 = BrowserWindow.fromId(1)
   const win2 = BrowserWindow.fromId(2)
   const control = contr.control
   const value = contr.value
@@ -32,6 +33,8 @@ async function controls (contr, status) {
       if (status.file) {
         status.playBtn = !status.playBtn
         sendToWindow('control', { control: 'play' })
+        console.log(tcpServer)
+        tcpServer.write('play')
         // win.webContents.send('control', { control: 'play' })
       } else {
         status.playBtn = false
@@ -77,7 +80,9 @@ async function controls (contr, status) {
       status.volume = value
       break
     case 'flip':
-      win.show()
+      if (win1) {
+        win1.show()
+      }
       break
   }
   return status

@@ -19,6 +19,9 @@ const tcpServer = {
         console.log('socket error: ', JSON.stringify(err))
       })
     })
+    server.addListener('connection', (socket) => {
+      clients.push(socket)
+    })
     server.listen(port, () => {
       server.on('close', () => {
         console.log('Server close')
@@ -29,6 +32,7 @@ const tcpServer = {
     })
   },
   write: (data) => {
+    console.log(clients)
     clients.forEach(client => {
       client.write(data)
     })

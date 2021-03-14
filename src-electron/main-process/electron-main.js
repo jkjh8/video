@@ -5,8 +5,6 @@ let status = {
   mode: 'noaml',
   autoplay: false,
   isPlaying: false,
-  // currentList: '',
-  // currentListFile: null,
   file: null,
   duration: 0,
   currentTime: 0,
@@ -27,6 +25,9 @@ let playlist = {
   currListName: ''
 }
 
+global.status = status
+global.playlist = playlist
+
 import server from './web'
 import { open, oldFileDelete } from './apis/files'
 import { enterFullscreen, sendToWindow } from './apis/function'
@@ -35,11 +36,7 @@ import playlistPrc from './apis/playlist'
 import genThumb from './apis/thunbnail'
 import tcp from './apis/socket'
 
-tcp.read(12303, (res) => {
-  tcp.write(res)
-})
-
-tcp.read(9988, (res) => {
+tcp.read(1339, (res) => {
   tcp.write(res)
 })
 
@@ -61,6 +58,8 @@ if (process.env.PROD) {
 
 let mainWindow
 let controlWindow
+
+global.controlWindow = controlWindow
 
 function createWindow () {
   /**
@@ -95,7 +94,6 @@ function createWindow () {
     status.fullscreen = false
     sendToWindow(controlWindow, status)
   })
-  console.log(mainWindow.id)
 }
 
 function createControlWindow () {
@@ -110,14 +108,6 @@ function createControlWindow () {
         contextIsolation: false
       }
     })
-    controlWindow.on('ready-to-show', () => {
-      ipcMain.on('time', (event, time) => {
-        if (controlWindow) {
-          controlWindow.webContents.send('time', time)
-        }
-        status.currentTime = time
-      })
-    })
   }
   controlWindow.loadURL(process.env.APP_URL + '/#/control')
   // controlWindow.setMenu(null)
@@ -127,44 +117,47 @@ function createControlWindow () {
   console.log(controlWindow.id)
 }
 
-Menu.setApplicationMenu(
-  Menu.buildFromTemplate([
-    {
-      label: 'File',
-      submenu: [
-        {
-          label: 'Open',
-          accelerator: 'CommandOrControl+O',
-          async click () {
-            status.file = await open(mainWindow)
-            status = await genThumb(status)
-          }
-        },
-        {
-          label: 'OpenControlWindow',
-          accelerator: 'F4',
-          click () { createControlWindow() }
-        },
-        {
-          label: 'Exit',
-          accelerator: 'CommandOrControl+F4',
-          click () { app.quit() }
-        }
-      ]
-    },
-    {
-      label: 'Function',
-      submenu: [
-        {
-          label: 'Toggle Fullscreen',
-          accelerator: 'F11',
-          click () { status.fullscreen = enterFullscreen() }
-        },
-        { role: 'toggleDevTools' }
-      ]
-    }
-  ])
-)
+global.createControlWindow = createControlWindow
+// Menu.setApplicationMenu(
+//   Menu.buildFromTemplate([
+//     {
+//       label: 'File',
+//       submenu: [
+//         {
+//           label: 'Open',
+//           accelerator: 'CommandOrControl+O',
+//           async click () {
+//             status.file = await open(mainWindow)
+//             status = await genThumb(status)
+//           }
+//         },
+//         {
+//           label: 'OpenControlWindow',
+//           accelerator: 'F4',
+//           click () { createControlWindow() }
+//         },
+//         {
+//           label: 'Exit',
+//           accelerator: 'CommandOrControl+F4',
+//           click () { app.quit() }
+//         }
+//       ]
+//     },
+//     {
+//       label: 'Function',
+//       submenu: [
+//         {
+//           label: 'Toggle Fullscreen',
+//           accelerator: 'F11',
+//           click () { status.fullscreen = enterFullscreen() }
+//         },
+//         { role: 'toggleDevTools' }
+//       ]
+//     }
+//   ])
+// )
+
+require('./apis/menu')
 
 app.on('ready', async () => {
   await createWindow()
@@ -195,7 +188,7 @@ ipcMain.on('playlist', async (event, control) => {
 })
 
 ipcMain.on('control', async (event, control) => {
-  status = await controls(control, status, tcpServer)
+  status = await controls(control, status, tcp)
   // mainWindow.webContents.send('getControl', control)
   sendToWindow('status', status)
 })
