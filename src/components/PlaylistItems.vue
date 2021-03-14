@@ -125,8 +125,9 @@ export default {
       // this.onChange() // Trigger the onChange event manually
       // Clean up
       console.log(event.dataTransfer.files)
-      event.currentTarget.classList.add('bg-gray-100')
-      event.currentTarget.classList.remove('bg-green-300')
+      // event.currentTarget.classList.add('bg-gray-100')
+      // event.currentTarget.classList.remove('bg-green-300')
+      this.over = false
     }
   }
 }
