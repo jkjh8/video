@@ -2,10 +2,11 @@ import { app, BrowserWindow, nativeTheme, Menu, ipcMain } from 'electron'
 import db from './apis/db'
 
 let status = {
+  mode: 'noaml',
+  autoplay: false,
   isPlaying: false,
-  mode: 'normal',
-  currentList: '',
-  currentListFile: null,
+  // currentList: '',
+  // currentListFile: null,
   file: null,
   duration: 0,
   currentTime: 0,
@@ -194,7 +195,7 @@ ipcMain.on('playlist', async (event, control) => {
 })
 
 ipcMain.on('control', async (event, control) => {
-  status = await controls(control, status, playlist, mainWindow, controlWindow)
+  status = await controls(control, status, tcpServer)
   // mainWindow.webContents.send('getControl', control)
   sendToWindow('status', status)
 })

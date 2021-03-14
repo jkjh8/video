@@ -1,12 +1,14 @@
 import { enterFullscreen, sendToWindow } from './function'
 import { open, clear, getFileObj } from './files'
+import { BrowserWindow } from 'electron'
 
-async function controls (contr, status, win, win2) {
+async function controls (contr, status) {
+  const win2 = BrowserWindow.fromId(2)
   const control = contr.control
   const value = contr.value
   switch (control) {
     case 'open':
-      status.file = await open(win)
+      status.file = await open()
       break
     case 'clear':
       status.file = await clear()
@@ -33,11 +35,14 @@ async function controls (contr, status, win, win2) {
         // win.webContents.send('control', { control: 'play' })
       } else {
         status.playBtn = false
-        win2.webContents.send('alert', 'Please check file or open file for play')
+        if (win2) {
+          win2.webContents.send('alert', 'Please check file or open file for play')
+        }
       }
       break
     case 'changeTime':
-      win.webContents.send('control', { control: 'changeTime', value: value })
+      // win.webContents.send('control', { control: 'changeTime', value: value })
+      sendToWindow('control', { control: 'changeTime', value: value })
       break
     case 'isPlaying':
       status.isPlaying = value
@@ -56,7 +61,8 @@ async function controls (contr, status, win, win2) {
     case 'openFile':
       status.file = getFileObj(value)
       status.isPlaying = false
-      win.webContents.send('file', status.file)
+      sendToWindow('file', status.file)
+      // win.webContents.send('file', status.file)
       break
     case 'loop':
       status.loop = !status.loop

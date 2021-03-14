@@ -21,6 +21,10 @@ if (arch !== 'arm64') {
 }
 
 export default async function genThumb (status) {
+  if (arch === 'arm64') {
+    status.thumbnail = '~assets/logo_sq.png'
+    return status
+  }
   const filename = `${path.basename(status.file.file).split('.')[0]}.png`.replaceAll('%', '')
   const result = fs.existsSync(path.join(tempFolder, filename))
   if (result) {

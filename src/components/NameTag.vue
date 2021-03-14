@@ -25,7 +25,7 @@
         <q-img
           style="height: 70px; width: 122px"
           :ratio="16/9"
-          src="http://localhost:8089/static/default/logo_sq.png"
+          src="~assets/logo_sq.png"
         />
       </span>
       <span>

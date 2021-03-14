@@ -1,8 +1,10 @@
+const { app } = require('electron')
 const express = require('express')
 const path = require('path')
 const fs = require('fs')
 const server = express()
 
+console.log(app.getPath('userData'))
 server.use('/static', express.static(path.join(__dirname, 'tmp')))
 
 server.get('/', (req, res) => {

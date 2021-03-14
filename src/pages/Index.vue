@@ -27,7 +27,7 @@
           <div class="full-width full-height row wrap justify-center content-center">
             <q-img
               style="width: 100px;"
-              src="http://localhost:8089/static/default/logo_2_320.png"
+              src="~assets/logo_2_320.png"
             />
           </div>
         </template>
