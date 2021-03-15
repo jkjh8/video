@@ -47,7 +47,8 @@ Menu.setApplicationMenu(
           label: 'Api',
           accelerator: 'F1',
           click () { createApiWindow() }
-        }
+        },
+        { role: 'toggleDevTools' }
       ]
     }
   ])

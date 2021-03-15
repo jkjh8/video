@@ -14,8 +14,8 @@ let ffprobePath
 let ffmpeg
 
 if (arch !== 'arm64') {
-  ffmpegPath = require('@ffmpeg-installer/ffmpeg').path
-  ffprobePath = require('@ffprobe-installer/ffprobe').path
+  ffmpegPath = require('@ffmpeg-installer/ffmpeg').path.replace('app.asar', 'app.asar.unpacked')
+  ffprobePath = require('@ffprobe-installer/ffprobe').path.replace('app.asar', 'app.asar.unpacked')
   ffmpeg = require('fluent-ffmpeg')
   ffmpeg.setFfmpegPath(ffmpegPath)
   ffmpeg.setFfprobePath(ffprobePath)
