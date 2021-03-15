@@ -8,7 +8,7 @@
         :background-color="setup.bgColor"
         :loop="status.loop"
         :volume="status.volume"
-        :autoplay="videoOptions.autoplay"
+        :autoplay="status.autoplay"
         :sources="videoOptions.sources"
         :show-big-play-button="false"
         :no-controls="!videoOptions.controls"
@@ -101,6 +101,9 @@ export default {
           case 'changeTime':
             this.player.setCurrentTime(control.value)
             break
+          case 'pause':
+            this.player.pause()
+            break
         }
       })
     },
@@ -132,7 +135,7 @@ export default {
       console.log('ended')
       this.player.setCurrentTime(0)
       if (this.status.mode === 'playlist') {
-        ipcRenderer.send('playlist', { control: 'next' })
+        ipcRenderer.send('control', { control: 'next' })
       } else {
         ipcRenderer.send('control', { control: 'ended' })
       }

@@ -99,6 +99,32 @@ async function delAll () {
   }
 }
 
+async function getSetup (item) {
+  return await db.setup.getSetup(item)
+}
+
+async function updateSetup (item, value) {
+  return await db.setup.updateSetup(item, value)
+}
+
+async function refreshDb (status, first = false) {
+  status.list = await db.list.get()
+  if (status.list.length === 0) {
+    try {
+      await db.list.add({ name: 'default' })
+      status.list = await db.list.get()
+    } catch (err) {
+      console.log('getList', err)
+    }
+  }
+  if (first) {
+    console.log('first')
+    status.currListName = status.list[0].name
+  }
+  status.items = await db.items.get({ playlist: status.currListName })
+  return status
+}
+
 const dbFn = {
   getList: getList,
   getListItems: getListItems,
@@ -108,7 +134,10 @@ const dbFn = {
   delList: delList,
   delListItem: delListItem,
   delListItems: delListItems,
-  delAll: delAll
+  delAll: delAll,
+  getSetup: getSetup,
+  updateSetup: updateSetup,
+  refreshDb: refreshDb
 }
 
 export default dbFn

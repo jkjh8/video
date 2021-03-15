@@ -32,4 +32,12 @@ export default class DbElectron {
   async delAll () {
     return await this.db.remove({}, { multi: true })
   }
+
+  async updateSetup (item, value) {
+    return await this.db.update({ setup: item }, { $set: { value: value } }, { upsert: true })
+  }
+
+  async getSetup (item) {
+    return await this.db.findOne({ setup: item })
+  }
 }

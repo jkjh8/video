@@ -48,20 +48,13 @@ export default {
   },
   async mounted () {
     this.status = await ipcRenderer.sendSync('getStatus')
-    this.playlist = await ipcRenderer.sendSync('getPlaylist')
     this.updateStatus()
-    this.updatePlaylist()
     this.reciveAlert()
   },
   methods: {
     updateStatus () {
       ipcRenderer.on('status', (event, status) => {
         this.status = status
-      })
-    },
-    updatePlaylist () {
-      ipcRenderer.on('playlist', (event, playlist) => {
-        this.playlist = playlist
       })
     },
     reciveAlert () {

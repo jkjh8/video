@@ -1,5 +1,9 @@
 
-import { Menu } from 'electron'
+import { app, Menu } from 'electron'
+import { open } from './files'
+import genThumb from './thunbnail'
+import { enterFullscreen } from './function'
+import { createControlWindow, createApiWindow } from './windows'
 
 Menu.setApplicationMenu(
   Menu.buildFromTemplate([
@@ -11,7 +15,7 @@ Menu.setApplicationMenu(
           accelerator: 'CommandOrControl+O',
           async click () {
             status.file = await open()
-            status = await genThumb(status)
+            status.thumbnail = await genThumb(status)
           }
         },
         {
@@ -33,8 +37,17 @@ Menu.setApplicationMenu(
           label: 'Toggle Fullscreen',
           accelerator: 'F11',
           click () { status.fullscreen = enterFullscreen() }
-        },
-        { role: 'toggleDevTools' }
+        }
+      ]
+    },
+    {
+      label: 'Help',
+      submenu: [
+        {
+          label: 'Api',
+          accelerator: 'F1',
+          click () { createApiWindow() }
+        }
       ]
     }
   ])

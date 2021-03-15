@@ -14,6 +14,13 @@ const routes = [
       { path: '', component: () => import('../pages/Control.vue') }
     ]
   },
+  {
+    path: '/api',
+    component: () => import('layouts/MainLayout.vue'),
+    children: [
+      { path: '', component: () => import('../pages/Api.vue') }
+    ]
+  },
 
   // Always leave this as last one,
   // but you can also remove it

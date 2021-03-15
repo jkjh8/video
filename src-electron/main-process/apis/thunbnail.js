@@ -1,4 +1,5 @@
 const os = require('os')
+import { app } from 'electron'
 import path from 'path'
 import fs from 'fs'
 
@@ -7,7 +8,7 @@ import { sendToWindow } from './function'
 const arch = os.arch()
 console.log('Archtect ', arch)
 
-const tempFolder = path.join(__dirname, 'tmp')
+const tempFolder = path.join(app.getPath('userData'), 'tmp')
 let ffmpegPath
 let ffprobePath
 let ffmpeg
@@ -26,6 +27,7 @@ export default async function genThumb (status) {
     return status
   }
   const filename = `${path.basename(status.file.file).split('.')[0]}.png`.replaceAll('%', '')
+  console.log(filename)
   const result = fs.existsSync(path.join(tempFolder, filename))
   if (result) {
     status.thumbnail = `http://localhost:8089/static/${encodeURIComponent(filename)}`
@@ -43,5 +45,5 @@ export default async function genThumb (status) {
         size: '640x360'
       })
   }
-  return status
+  return status.thumbnail
 }

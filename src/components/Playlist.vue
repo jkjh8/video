@@ -29,9 +29,9 @@
     <q-card-section class="q-pa-none">
       <q-list>
         <q-item
-          v-for="(item, idx) in playlist.list"
+          v-for="(item, idx) in status.list"
           :key="idx"
-          :active="playlist.listIdx === idx"
+          :active="status.listIdx === idx"
           @click="clickList(idx)"
           clickable
           v-ripple
@@ -73,7 +73,7 @@ import Textfield from './Textfield'
 export default {
   name: 'Playlist',
   components: { ConfirmDialog, Textfield },
-  props: ['status', 'playlist'],
+  props: ['status'],
   data () {
     return {
       selected: 0,
@@ -85,16 +85,16 @@ export default {
   },
   methods: {
     async clickList (idx) {
-      ipcRenderer.send('playlist', { control: 'listIdx', value: idx })
+      ipcRenderer.send('control', { control: 'listIdx', value: idx })
     },
     addPlaylist (list) {
-      ipcRenderer.send('playlist', { control: 'addList', value: { name: list } })
+      ipcRenderer.send('control', { control: 'addList', value: { name: list } })
     },
     delPlaylist (list) {
-      ipcRenderer.send('playlist', { control: 'delList', value: list })
+      ipcRenderer.send('control', { control: 'delList', value: list })
     },
     delAll () {
-      ipcRenderer.send('playlist', { control: 'delAll' })
+      ipcRenderer.send('control', { control: 'delAll' })
     }
   }
 }

@@ -160,8 +160,8 @@ export default {
     open () { ipcRenderer.send('control', { control: 'open' }) },
     fullscreen () { ipcRenderer.send('control', { control: 'fullscreen' }) },
     loopAll () { ipcRenderer.send('control', { control: 'loopAll' }) },
-    previous () { ipcRenderer.send('playlist', { control: 'previous' }) },
-    next () { ipcRenderer.send('playlist', { control: 'next' }) },
+    previous () { ipcRenderer.send('control', { control: 'previous' }) },
+    next () { ipcRenderer.send('control', { control: 'next' }) },
     mute () { ipcRenderer.send('control', { control: 'mute' }) },
     clearSource () { ipcRenderer.send('control', { control: 'clear' }) },
     changeVolume (vol) { ipcRenderer.send('control', { control: 'volume', value: vol }) }

@@ -1,9 +1,9 @@
-import { BrowserWindow, dialog } from 'electron'
+import { app, BrowserWindow, dialog } from 'electron'
 import path from 'path'
 import fs from 'fs'
 import moment from 'moment'
 
-const tempFolder = path.join(__dirname, 'tmp')
+const tempFolder = path.join(app.getPath('userData'), 'tmp')
 
 function filePath (file) {
   const filepath = path.parse(file)
@@ -64,6 +64,7 @@ export const openFiles = async function (win) {
 }
 
 export const oldFileDelete = function () {
+  !fs.existsSync(tempFolder) && fs.mkdirSync(tempFolder)
   const files = fs.readdirSync(tempFolder)
   files.forEach(file => {
     const fileState = fs.statSync(path.join(tempFolder, file))

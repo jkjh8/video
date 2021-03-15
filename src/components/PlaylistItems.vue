@@ -37,9 +37,9 @@
       <div @dragover="dragover" @dragleave="dragleave" @drop="drop">
         <q-list :style="over ? 'background: #F0F8FF' : ''">
           <q-item
-            v-for="(item, idx) in playlist.items"
+            v-for="(item, idx) in status.items"
             :key="idx"
-            :active="playlist.itemIdx === idx"
+            :active="status.itemIdx === idx"
             @click.native.prevent="clickItem(idx)"
             clickable
           >
@@ -64,6 +64,14 @@
             </q-item-section>
           </q-item>
         </q-list>
+        <div
+          v-if="status.items.length === 0"
+          class="fit row wrap justify-center items-center content-center"
+          :style="over ? 'background: #F0F8FF' : ''"
+          style="min-height: 58px;"
+        >
+          <div>click the open button or drag and drop video file</div>
+        </div>
       </div>
     </q-card-section>
     <ConfirmDialog
@@ -75,13 +83,14 @@
 </template>
 
 <script>
+// import path from 'path'
 import { ipcRenderer } from 'electron'
 import ConfirmDialog from './Confirm'
 
 export default {
   name: 'PlaylistItems',
   components: { ConfirmDialog },
-  props: ['playlist'],
+  props: ['status'],
   data () {
     return {
       contents: {
@@ -93,40 +102,42 @@ export default {
   },
   methods: {
     callFileDialog () {
-      ipcRenderer.send('playlist', { control: 'getItems' })
+      ipcRenderer.send('control', { control: 'getItems' })
     },
     clickItem (idx) {
-      ipcRenderer.send('playlist', { control: 'itemIdx', value: idx })
+      ipcRenderer.send('control', { control: 'itemIdx', value: idx })
     },
     deleteItem (item) {
-      ipcRenderer.send('playlist', { control: 'delItem', value: item })
+      ipcRenderer.send('control', { control: 'delItem', value: item })
     },
     deleteAllItems () {
-      ipcRenderer.send('playlist', { control: 'delItems' })
+      ipcRenderer.send('control', { control: 'delItems' })
     },
     dragover (event) {
       event.preventDefault()
       this.over = true
-      // Add some visual fluff to show the user can drop its files
-      // if (!event.currentTarget.classList.contains('bg-green-300')) {
-      //   event.currentTarget.classList.remove('bg-gray-100')
-      // event.currentTarget.classList.add('bg-green-300')
-      // }
     },
     dragleave (event) {
       this.over = false
-      // Clean up
-      // event.currentTarget.classList.add('bg-gray-100')
-      // event.currentTarget.classList.remove('bg-green-300')
     },
     drop (event) {
       event.preventDefault()
-      // this.$refs.file.files = event.dataTransfer.files
-      // this.onChange() // Trigger the onChange event manually
-      // Clean up
-      console.log(event.dataTransfer.files)
-      // event.currentTarget.classList.add('bg-gray-100')
-      // event.currentTarget.classList.remove('bg-green-300')
+      const files = event.dataTransfer.files
+      const fileArray = []
+      for (let i = 0; i < files.length; i++) {
+        if (files[i].type.includes('video')) {
+          fileArray.push(files[i].path)
+        }
+      }
+      ipcRenderer.send('control', { control: 'addItems', value: fileArray })
+      if (fileArray.length > 0) {
+        this.$q.notify({
+          position: 'top',
+          timeout: 1000,
+          message: 'Add files in list',
+          caption: fileArray.join('\n')
+        })
+      }
       this.over = false
     }
   }

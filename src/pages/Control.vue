@@ -2,7 +2,7 @@
   <q-page>
     <div>
       <q-card flat>
-        <q-card-section class="flex nowarp">
+        <q-card-section class="flex nowarp items-center">
           <div class="text-h6">
             <q-icon
               class="text-teal"
@@ -10,6 +10,10 @@
               name="play_circle_filled"
             />
             Playlist
+          </div>
+          <q-space />
+          <div>
+            {{ clock }}
           </div>
         </q-card-section>
         <q-card-section class="row">
@@ -32,6 +36,7 @@
 </template>
 
 <script>
+import moment from 'moment'
 import PlaylistItems from '../components/PlaylistItems'
 import Playlist from '../components/Playlist'
 
@@ -39,9 +44,21 @@ export default {
   name: 'PageControl',
   components: { PlaylistItems, Playlist },
   props: ['status', 'playlist'],
+  mounted () {
+    this.createClock()
+  },
   data () {
     return {
-      alert: true
+      alert: true,
+      clock: ''
+    }
+  },
+  methods: {
+    createClock () {
+      moment.locale('ko')
+      setInterval(() => {
+        this.clock = moment().format('LL LTS')
+      }, 1000)
     }
   }
 }

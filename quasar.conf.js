@@ -99,7 +99,7 @@ module.exports = function (/* ctx */) {
       // directives: [],
 
       // Quasar plugins
-      plugins: ['AppFullscreen']
+      plugins: ['Notify']
     },
 
     // animations: 'all', // --- includes all animations
@@ -165,7 +165,7 @@ module.exports = function (/* ctx */) {
 
     // Full list of options: https://quasar.dev/quasar-cli/developing-electron-apps/configuring-electron
     electron: {
-      bundler: 'packager', // 'packager' or 'builder'
+      bundler: 'builder', // 'packager' or 'builder'
 
       packager: {
         // https://github.com/electron-userland/electron-packager/blob/master/docs/api.md#options
@@ -178,6 +178,11 @@ module.exports = function (/* ctx */) {
 
         // Windows only
         // win32metadata: { ... }
+        appId: 'video-player',
+        nsis: {
+          oneClick: false,
+          allowToChangeInstallationDirectory: true
+        }
       },
 
       builder: {

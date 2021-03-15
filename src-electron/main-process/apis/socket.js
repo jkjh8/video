@@ -32,7 +32,6 @@ const tcpServer = {
     })
   },
   write: (data) => {
-    console.log(clients)
     clients.forEach(client => {
       client.write(data)
     })
